@@ -20,8 +20,7 @@ my $build = Module::Build->new(
 	'test_files'		=> 't/*.t',
 
 	'build_requires'	=> {
-		# Test stuff
-		'Test::More'				=> '0.94',
+		'Test::More'	=> '0.94',
 	},
 
 	'requires'		=> {

@@ -3,22 +3,17 @@ use strict; use warnings;
 our $VERSION = '0.01';
 
 use Moose 1.01;
+use Perl::MinimumVersion 1.24;
 
 # TODO wait for improved Moose that allows "with 'Foo::Bar' => { -version => 1.23 };"
 use Dist::Zilla::Role::PrereqSource 2.101170;
 with 'Dist::Zilla::Role::PrereqSource';
-
-use Perl::MinimumVersion 1.24;
-
-# -- attributes
 
 has perl => (
 	is => 'ro',
 	isa => 'Str', # TODO add more validation?
 	predicate => '_has_perl',
 );
-
-# -- public methods
 
 sub register_prereqs {
 	my ($self) = @_;
