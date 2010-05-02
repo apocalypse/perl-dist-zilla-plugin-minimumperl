@@ -1,5 +1,9 @@
 Revision history for Dist::Zilla::Plugin::MinimumPerl
 
+* 0.02
+
+	d0h, the logic for finding the minimum Perl version was reversed!
+
 * 0.01
 
 	initial release
