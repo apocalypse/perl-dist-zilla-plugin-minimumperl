@@ -2,12 +2,14 @@ package Dist::Zilla::Plugin::MinimumPerl;
 use strict; use warnings;
 our $VERSION = '0.02';
 
-use Moose 1.01;
-use Perl::MinimumVersion 1.24;
+use Moose 1.03; # for the -version stuff
+use Perl::MinimumVersion 1.26;
 
-# TODO wait for improved Moose that allows "with 'Foo::Bar' => { -version => 1.23 };"
-use Dist::Zilla::Role::PrereqSource 2.101170;
-with 'Dist::Zilla::Role::PrereqSource';
+with 'Dist::Zilla::Role::PrereqSource' => { -version => '4.102345' };
+with 'Dist::Zilla::Role::FileFinderUser' => {
+	-version => '4.102345',
+	default_finders => [ ':InstallModules', ':ExecFiles' ]
+};
 
 has perl => (
 	is => 'ro',
@@ -21,34 +23,24 @@ sub register_prereqs {
 	# Okay, did the user set a perl version explicitly?
 	if ( $self->_has_perl ) {
 		# Add it to prereqs!
-		my $prereqs = $self->zilla->prereq->_guts->{runtime}{requires};
-		my $prereq_hash = defined $prereqs ? $prereqs->as_string_hash : {};
-		## no critic ( ProhibitAccessOfPrivateData )
-		if ( exists $prereq_hash->{'perl'} ) {
-			$self->log_debug( "Detected 'perl' prereq already set to v" . $prereq_hash->{'perl'} );
-		} else {
-			$self->zilla->register_prereqs(
-				{ phase => 'runtime' },
-				'perl' => $self->perl,
-			);
-		}
+		$self->zilla->register_prereqs(
+			{ phase => 'runtime' },
+			'perl' => $self->perl,
+		);
 	} else {
 		# Use Perl::MinimumVersion to scan all files
 		my $minver;
-		foreach my $file ( @{ $self->zilla->files } ) {
-			# Logic taken from DZ:P:PkgVersion v2.101170
-			if ( $file->name =~ /\.t$/ or $file->name =~ /\.(?:pm|pl)$/i or $file->content =~ /^#!(?:.*)perl(?:$|\s)/ ) {
-				my $pmv = Perl::MinimumVersion->new( \$file->content );
-				if ( ! defined $pmv ) {
-					$self->log_fatal( "Unable to parse '" . $file->name . "'" );
-				}
-				my $ver = $pmv->minimum_version;
-				if ( ! defined $ver ) {
-					$self->log_fatal( "Unable to extract MinimumPerl from '" . $file->name . "'" );
-				}
-				if ( ! defined $minver or $ver > $minver ) {
-					$minver = $ver;
-				}
+		foreach my $file ( @{ $self->found_files } ) {
+			my $pmv = Perl::MinimumVersion->new( \$file->content );
+			if ( ! defined $pmv ) {
+				$self->log_fatal( "Unable to parse '" . $file->name . "'" );
+			}
+			my $ver = $pmv->minimum_version;
+			if ( ! defined $ver ) {
+				$self->log_fatal( "Unable to extract MinimumPerl from '" . $file->name . "'" );
+			}
+			if ( ! defined $minver or $ver > $minver ) {
+				$minver = $ver;
 			}
 		}
 
