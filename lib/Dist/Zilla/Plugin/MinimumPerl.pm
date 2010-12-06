@@ -10,7 +10,7 @@ with(
 	'Dist::Zilla::Role::PrereqSource' => { -version => '4.102345' },
 	'Dist::Zilla::Role::FileFinderUser' => {
 		-version => '4.102345',
-		default_finders => [ ':InstallModules', ':ExecFiles' ]
+		default_finders => [ ':InstallModules', ':ExecFiles', ':TestFiles' ]
 	},
 );
 
