@@ -1,24 +1,50 @@
 package Dist::Zilla::Plugin::MinimumPerl;
-use strict; use warnings;
-our $VERSION = '0.02';
+
+# ABSTRACT: Detects the minimum version of Perl required for your dist
 
 use Moose 1.03; # for the -version stuff
 use Perl::MinimumVersion 1.26;
+use MooseX::Types::Perl 0.101340 qw( LaxVersionStr );
 
-with 'Dist::Zilla::Role::PrereqSource' => { -version => '4.102345' };
-with 'Dist::Zilla::Role::FileFinderUser' => {
-	-version => '4.102345',
-	default_finders => [ ':InstallModules', ':ExecFiles' ]
-};
-
-has perl => (
-	is => 'ro',
-	isa => 'Str', # TODO add more validation?
-	predicate => '_has_perl',
+with(
+	'Dist::Zilla::Role::PrereqSource' => { -version => '4.102345' },
+	'Dist::Zilla::Role::FileFinderUser' => {
+		-version => '4.102345',
+		default_finders => [ ':InstallModules', ':ExecFiles' ]
+	},
 );
+
+=attr perl
+
+Specify a version of perl required for the dist. Please specify it in a format that Build.PL/Makefile.PL understands!
+If this is specified, this module will not attempt to automatically detect the minimum version of Perl.
+
+Example: 5.008008
+
+=cut
+
+{
+	use Moose::Util::TypeConstraints 1.01;
+
+	# TODO should we use the VersionObject from MX::Types::Perl and numify it when we write it to the metadata?
+	has perl => (
+		is => 'ro',
+		isa => subtype( 'Str'
+			=> where { LaxVersionStr->check( $_ ) }
+			=> message { "Perl must be in a valid version format - see version.pm" }
+		),
+		predicate => '_has_perl',
+	);
+
+	no Moose::Util::TypeConstraints;
+}
+
+
 
 sub register_prereqs {
 	my ($self) = @_;
+
+	# TODO should we check to see if it was already set in the metadata?
 
 	# Okay, did the user set a perl version explicitly?
 	if ( $self->_has_perl ) {
@@ -63,11 +89,9 @@ __PACKAGE__->meta->make_immutable;
 
 =pod
 
-=for stopwords AnnoCPAN CPAN CPANTS Kwalitee RT dist prereqs
+=for stopwords dist prereqs
 
-=head1 NAME
-
-Dist::Zilla::Plugin::MinimumPerl - Detects the minimum version of Perl required for your dist
+=for Pod::Coverage register_prereqs
 
 =head1 DESCRIPTION
 
@@ -78,88 +102,8 @@ logic.
 	# In your dist.ini:
 	[MinimumPerl]
 
-This plugin accepts the following options:
-
-=over 4
-
-=item * perl
-
-Specify a version of perl required for the dist. Please specify it in a format that Build.PL/Makefile.PL understands!
-If this is specified, this module will not attempt to automatically detect the minimum version of Perl.
-
-Example: 5.008008
-
-=back
-
 =head1 SEE ALSO
 
 L<Dist::Zilla>
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-	perldoc Dist::Zilla::Plugin::MinimumPerl
-
-=head2 Websites
-
-=over 4
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Dist-Zilla-Plugin-MinimumPerl>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Dist-Zilla-Plugin-MinimumPerl>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Dist-Zilla-Plugin-MinimumPerl>
-
-=item * CPAN Forum
-
-L<http://cpanforum.com/dist/Dist-Zilla-Plugin-MinimumPerl>
-
-=item * RT: CPAN's Request Tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Dist-Zilla-Plugin-MinimumPerl>
-
-=item * CPANTS Kwalitee
-
-L<http://cpants.perl.org/dist/overview/Dist-Zilla-Plugin-MinimumPerl>
-
-=item * CPAN Testers Results
-
-L<http://cpantesters.org/distro/D/Dist-Zilla-Plugin-MinimumPerl.html>
-
-=item * CPAN Testers Matrix
-
-L<http://matrix.cpantesters.org/?dist=Dist-Zilla-Plugin-MinimumPerl>
-
-=item * Git Source Code Repository
-
-L<http://github.com/apocalypse/perl-dist-zilla-plugin-minimumperl>
-
-=back
-
-=head2 Bugs
-
-Please report any bugs or feature requests to C<bug-dist-zilla-plugin-minimumperl at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Dist-Zilla-Plugin-MinimumPerl>.  I will be
-notified, and then you'll automatically be notified of progress on your bug as I make changes.
-
-=head1 AUTHOR
-
-Apocalypse E<lt>apocal@cpan.orgE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright 2010 by Apocalypse
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-The full text of the license can be found in the LICENSE file included with this module.
 
 =cut
