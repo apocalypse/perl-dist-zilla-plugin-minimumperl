@@ -2,7 +2,7 @@ package Dist::Zilla::Plugin::MinimumPerl;
 
 # ABSTRACT: Detects the minimum version of Perl required for your dist
 
-use Moose 1.03; # for the -version stuff
+use Moose 1.03;
 use Perl::MinimumVersion 1.26;
 use MooseX::Types::Perl 0.101340 qw( LaxVersionStr );
 
