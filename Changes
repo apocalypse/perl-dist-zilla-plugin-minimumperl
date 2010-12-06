@@ -6,10 +6,10 @@ Revision history for Dist::Zilla::Plugin::MinimumPerl
 	Updated to support Dist::Zilla v4
 	Use MooseX::Types::Perl to validate the perl attr
 
-* 0.02
+0.02
 
 	d0h, the logic for finding the minimum Perl version was reversed!
 
-* 0.01
+0.01
 
 	initial release
