@@ -2,7 +2,11 @@ Revision history for Dist::Zilla::Plugin::MinimumPerl
 
 {{$NEXT}}
 
+1.002
+	Released: 2011-04-01 04:25:20 UTC
+
 	Re-release because v1.001 somehow didn't get on CPAN... /me smacks myself!
+	Minor POD tweaks
 
 1.001
 	Released: 2010-12-08 02:54:32 UTC
