@@ -19,6 +19,8 @@ with(
 Specify a version of perl required for the dist. Please specify it in a format that Build.PL/Makefile.PL understands!
 If this is specified, this module will not attempt to automatically detect the minimum version of Perl.
 
+The default is: undefined ( automatically detect it )
+
 Example: 5.008008
 
 =cut
@@ -26,7 +28,6 @@ Example: 5.008008
 {
 	use Moose::Util::TypeConstraints 1.01;
 
-	# TODO should we use the VersionObject from MX::Types::Perl and numify it when we write it to the metadata?
 	has perl => (
 		is => 'ro',
 		isa => subtype( 'Str'
@@ -38,8 +39,6 @@ Example: 5.008008
 
 	no Moose::Util::TypeConstraints;
 }
-
-
 
 sub register_prereqs {
 	my ($self) = @_;
@@ -54,6 +53,9 @@ sub register_prereqs {
 			'perl' => $self->perl,
 		);
 	} else {
+		# TODO should we split up the prereq into test / runtime ?
+		# see http://rt.cpan.org/Public/Bug/Display.html?id=61028
+
 		# Use Perl::MinimumVersion to scan all files
 		my $minver;
 		foreach my $file ( @{ $self->found_files } ) {
@@ -96,14 +98,12 @@ __PACKAGE__->meta->make_immutable;
 =head1 DESCRIPTION
 
 This plugin uses L<Perl::MinimumVersion> to automatically find the minimum version of Perl required
-for your dist and adds it to the prereqs. You can specify a version of Perl to override the scanning
-logic.
+for your dist and adds it to the prereqs.
 
 	# In your dist.ini:
 	[MinimumPerl]
 
 =head1 SEE ALSO
-
-L<Dist::Zilla>
+Dist::Zilla
 
 =cut
