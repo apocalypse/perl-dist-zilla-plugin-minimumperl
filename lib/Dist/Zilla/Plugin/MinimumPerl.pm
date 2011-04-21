@@ -59,6 +59,9 @@ sub register_prereqs {
 		# Use Perl::MinimumVersion to scan all files
 		my $minver;
 		foreach my $file ( @{ $self->found_files } ) {
+			# scan only files in bin/, plus .t, .pl, .pm
+			next unless $file->name =~ m{^bin/|\.(?:t|p[ml])$};
+
 			my $pmv = Perl::MinimumVersion->new( \$file->content );
 			if ( ! defined $pmv ) {
 				$self->log_fatal( "Unable to parse '" . $file->name . "'" );
