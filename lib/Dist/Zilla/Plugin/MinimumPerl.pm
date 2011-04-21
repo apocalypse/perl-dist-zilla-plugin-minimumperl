@@ -29,7 +29,7 @@ Example: 5.008008
 	use Moose::Util::TypeConstraints 1.01;
 
 	has perl => (
-		is => 'ro',
+		is => 'rw',
 		isa => subtype( 'Str'
 			=> where { LaxVersionStr->check( $_ ) }
 			=> message { "Perl must be in a valid version format - see version.pm" }
@@ -79,10 +79,14 @@ sub register_prereqs {
 
 		# Write out the minimum perl found
 		if ( defined $minver ) {
-			$self->log_debug( 'Determined that the MinimumPerl required is v' . $minver->stringify );
+			# Cache it so we don't have to scan again if we're called more than 1 time
+			# TODO this happens with Dist::Zilla::Util::EmulatePhase which is loaded by Dist::Zilla::Plugin::MetaData::BuiltWith
+			$self->perl( $minver->stringify );
+
+			$self->log_debug( 'Determined that the MinimumPerl required is v' . $self->perl );
 			$self->zilla->register_prereqs(
 				{ phase => 'runtime' },
-				'perl' => $minver->stringify,
+				'perl' => $self->perl,
 			);
 		} else {
 			$self->log_fatal( 'Found no perl files, check your dist?' );
