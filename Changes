@@ -2,6 +2,11 @@ Revision history for Dist::Zilla::Plugin::MinimumPerl
 
 {{$NEXT}}
 
+1.003
+	Released: 2011-04-21 16:19:04 UTC
+
+	Make sure that we scan only .t and .pl/pm files ( thanks RT#67355 and DOHERTY )
+
 1.002
 	Released: 2011-04-01 04:25:20 UTC
 
