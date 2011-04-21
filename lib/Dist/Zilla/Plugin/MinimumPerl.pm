@@ -59,6 +59,11 @@ sub register_prereqs {
 		# Use Perl::MinimumVersion to scan all files
 		my $minver;
 		foreach my $file ( @{ $self->found_files } ) {
+			# TODO should we scan the content for the perl shebang?
+			# Only check .t and .pm/pl files, thanks RT#67355 and DOHERTY
+			next unless $file->name =~ /\.(?:t|p[ml])$/i;
+
+			# TODO skip "bad" files and not die, just warn?
 			my $pmv = Perl::MinimumVersion->new( \$file->content );
 			if ( ! defined $pmv ) {
 				$self->log_fatal( "Unable to parse '" . $file->name . "'" );
@@ -102,6 +107,9 @@ for your dist and adds it to the prereqs.
 
 	# In your dist.ini:
 	[MinimumPerl]
+
+This plugin will search for files matching C</\.(t|pl|pm)$/i> in the C<lib/>, C<bin/>, and C<t/> directories.
+If you need it to scan a different directory and/or a different extension please let me know.
 
 =head1 SEE ALSO
 Dist::Zilla
