@@ -74,6 +74,7 @@ sub register_prereqs {
 			}
 			if ( ! defined $minver or $ver > $minver ) {
 				$minver = $ver;
+				$self->log_debug("Via ".$file->name.", set perl version to ".$ver->stringify);
 			}
 		}
 
