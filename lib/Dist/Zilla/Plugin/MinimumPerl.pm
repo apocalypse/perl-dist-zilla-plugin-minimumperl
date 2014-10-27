@@ -120,5 +120,6 @@ If you need it to scan a different directory and/or a different extension please
 
 =head1 SEE ALSO
 Dist::Zilla
+Dist::Zilla::Plugin::MinimumPerlFast
 
 =cut
