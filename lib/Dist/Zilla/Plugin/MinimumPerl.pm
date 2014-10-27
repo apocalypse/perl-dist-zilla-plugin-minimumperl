@@ -74,6 +74,8 @@ sub register_prereqs {
 			}
 			if ( ! defined $minver or $ver > $minver ) {
 				$minver = $ver;
+
+				# this might print more than 1 time, I consider it a feature so you can see which file(s) are actually upgrading the version :)
 				$self->log_debug("Via ".$file->name.", set perl version to ".$ver->stringify);
 			}
 		}
