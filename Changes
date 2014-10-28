@@ -2,6 +2,8 @@ Revision history for Dist::Zilla::Plugin::MinimumPerl
 
 {{$NEXT}}
 
+1.004	2014-10-28 02:21:06 UTC
+
 	Expanded the prereq specification so we now separate the configure, test, and runtime phases RT#61028 ( thanks DAGOLDEN! )
 	Skip parsing files with encoding == bytes RT#96071 ( thanks ETHER! )
 
