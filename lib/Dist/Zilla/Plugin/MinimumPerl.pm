@@ -7,7 +7,7 @@ use Perl::MinimumVersion 1.26;
 use MooseX::Types::Perl 0.101340 qw( LaxVersionStr );
 
 with(
-	'Dist::Zilla::Role::PrereqSource' => { -version => '4.102345' },
+	'Dist::Zilla::Role::PrereqSource' => { -version => '5.006' }, # for the updated encoding system in dzil, RJBS++
 	'Dist::Zilla::Role::FileFinderUser' => {
 		-version => '4.200006',	# for :IncModules
 		finder_arg_names => [ 'perl_Modules' ],
@@ -84,6 +84,9 @@ sub register_prereqs {
 
 sub _scan_file {
 	my( $self, $phase, $file ) = @_;
+
+	# We don't parse files marked with the 'bytes' encoding as they're special - see RT#96071
+	return if $file->is_bytes;
 
 	# TODO skip "bad" files and not die, just warn?
 	my $pmv = Perl::MinimumVersion->new( \$file->content );
