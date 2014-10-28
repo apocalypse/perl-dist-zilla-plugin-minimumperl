@@ -9,8 +9,20 @@ use MooseX::Types::Perl 0.101340 qw( LaxVersionStr );
 with(
 	'Dist::Zilla::Role::PrereqSource' => { -version => '4.102345' },
 	'Dist::Zilla::Role::FileFinderUser' => {
-		-version => '4.102345',
-		default_finders => [ ':InstallModules', ':ExecFiles', ':TestFiles' ]
+		-version => '4.200006',	# for :IncModules
+		finder_arg_names => [ 'perl_Modules' ],
+		method => 'found_modules',
+		default_finders => [ ':InstallModules' ]
+	},
+	'Dist::Zilla::Role::FileFinderUser' => {
+		finder_arg_names => [ 'perl_Tests' ],
+		method => 'found_tests',
+		default_finders => [ ':TestFiles' ]
+	},
+	'Dist::Zilla::Role::FileFinderUser' => {
+		finder_arg_names => [ 'perl_Inc' ],
+		method => 'found_inc',
+		default_finders => [ ':IncModules' ]
 	},
 );
 
@@ -29,7 +41,7 @@ Example: 5.008008
 	use Moose::Util::TypeConstraints 1.01;
 
 	has perl => (
-		is => 'rw',
+		is => 'ro',
 		isa => subtype( 'Str'
 			=> where { LaxVersionStr->check( $_ ) }
 			=> message { "Perl must be in a valid version format - see version.pm" }
@@ -40,6 +52,12 @@ Example: 5.008008
 	no Moose::Util::TypeConstraints;
 }
 
+has _scanned_perl => (
+	is => 'ro',
+	isa => 'HashRef',
+	default => sub { {} },
+);
+
 sub register_prereqs {
 	my ($self) = @_;
 
@@ -47,54 +65,64 @@ sub register_prereqs {
 
 	# Okay, did the user set a perl version explicitly?
 	if ( $self->_has_perl ) {
-		# Add it to prereqs!
-		$self->zilla->register_prereqs(
-			{ phase => 'runtime' },
-			'perl' => $self->perl,
-		);
-	} else {
-		# TODO should we split up the prereq into test / runtime ?
-		# see http://rt.cpan.org/Public/Bug/Display.html?id=61028
-
-		# Use Perl::MinimumVersion to scan all files
-		my $minver;
-		foreach my $file ( @{ $self->found_files } ) {
-			# TODO should we scan the content for the perl shebang?
-			# Only check .t and .pm/pl files, thanks RT#67355 and DOHERTY
-			next unless $file->name =~ /\.(?:t|p[ml])$/i;
-
-			# TODO skip "bad" files and not die, just warn?
-			my $pmv = Perl::MinimumVersion->new( \$file->content );
-			if ( ! defined $pmv ) {
-				$self->log_fatal( "Unable to parse '" . $file->name . "'" );
-			}
-			my $ver = $pmv->minimum_version;
-			if ( ! defined $ver ) {
-				$self->log_fatal( "Unable to extract MinimumPerl from '" . $file->name . "'" );
-			}
-			if ( ! defined $minver or $ver > $minver ) {
-				$minver = $ver;
-
-				# this might print more than 1 time, I consider it a feature so you can see which file(s) are actually upgrading the version :)
-				$self->log_debug("Via ".$file->name.", set perl version to ".$ver->stringify);
-			}
-		}
-
-		# Write out the minimum perl found
-		if ( defined $minver ) {
-			# Cache it so we don't have to scan again if we're called more than 1 time
-			# TODO this happens with Dist::Zilla::Util::EmulatePhase which is loaded by Dist::Zilla::Plugin::MetaData::BuiltWith
-			$self->perl( $minver->stringify );
-
-			$self->log_debug( 'Determined that the MinimumPerl required is v' . $self->perl );
+		foreach my $p ( qw( runtime configure test ) ) {
 			$self->zilla->register_prereqs(
-				{ phase => 'runtime' },
+				{ phase => $p },
 				'perl' => $self->perl,
 			);
-		} else {
-			$self->log_fatal( 'Found no perl files, check your dist?' );
 		}
+	} else {
+		# Go through our 3 phases
+		$self->_scan_file( 'runtime', $_ ) for @{ $self->found_modules };
+		$self->_finalize( 'runtime' );
+		$self->_scan_file( 'configure', $_ ) for @{ $self->found_inc };
+		$self->_finalize( 'configure' );
+		$self->_scan_file( 'test', $_ ) for @{ $self->found_tests };
+		$self->_finalize( 'test' );
 	}
+}
+
+sub _scan_file {
+	my( $self, $phase, $file ) = @_;
+
+	# TODO skip "bad" files and not die, just warn?
+	my $pmv = Perl::MinimumVersion->new( \$file->content );
+	if ( ! defined $pmv ) {
+		$self->log_fatal( "Unable to parse '" . $file->name . "'" );
+	}
+	my $ver = $pmv->minimum_version;
+	if ( ! defined $ver ) {
+		$self->log_fatal( "Unable to extract MinimumPerl from '" . $file->name . "'" );
+	}
+
+	# cache it, letting _finalize take care of it
+	if ( ! exists $self->_scanned_perl->{$phase} || $self->_scanned_perl->{$phase}->[0] < $ver ) {
+		$self->_scanned_perl->{$phase} = [ $ver, $file ];
+	}
+}
+
+sub _finalize {
+	my( $self, $phase ) = @_;
+
+	my $v;
+
+	# determine the version we will use
+	if ( ! exists $self->_scanned_perl->{$phase} ) {
+		# We don't complain for test and inc!
+		$self->log_fatal( 'Found no perl files, check your dist?' ) if $phase eq 'runtime';
+
+		# ohwell, we just copy the runtime perl
+		$self->log_debug( "Determined that the MinimumPerl required for '$phase' is v" . $self->_scanned_perl->{'runtime'}->[0] . " via defaulting to runtime" );
+		$v = $self->_scanned_perl->{'runtime'}->[0];
+	} else {
+		$self->log_debug( "Determined that the MinimumPerl required for '$phase' is v" . $self->_scanned_perl->{$phase}->[0] . " via " .  $self->_scanned_perl->{$phase}->[1]->name );
+		$v = $self->_scanned_perl->{$phase}->[0];
+	}
+
+	$self->zilla->register_prereqs(
+		{ phase => $phase },
+		'perl' => $v,
+	);
 }
 
 no Moose;
@@ -115,7 +143,7 @@ for your dist and adds it to the prereqs.
 	# In your dist.ini:
 	[MinimumPerl]
 
-This plugin will search for files matching C</\.(t|pl|pm)$/i> in the C<lib/>, C<bin/>, and C<t/> directories.
+This plugin will search for files matching C</\.(t|pl|pm)$/i> in the C<lib/>, C<inc/>, and C<t/> directories.
 If you need it to scan a different directory and/or a different extension please let me know.
 
 =head1 SEE ALSO
