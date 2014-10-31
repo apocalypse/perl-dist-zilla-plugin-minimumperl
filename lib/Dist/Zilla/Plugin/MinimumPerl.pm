@@ -9,19 +9,19 @@ use MooseX::Types::Perl 0.101340 qw( LaxVersionStr );
 with(
 	'Dist::Zilla::Role::PrereqSource' => { -version => '5.006' }, # for the updated encoding system in dzil, RJBS++
 	'Dist::Zilla::Role::FileFinderUser' => {
-		finder_arg_names => [ 'perl_Modules' ],
-		method => 'found_modules',
+		finder_arg_names => [ 'runtime_finder' ],
+		method => 'found_runtime',
 		default_finders => [ ':InstallModules', ':ExecFiles' ]
 	},
 	'Dist::Zilla::Role::FileFinderUser' => {
-		finder_arg_names => [ 'perl_Tests' ],
+		finder_arg_names => [ 'test_finder' ],
 		method => 'found_tests',
 		default_finders => [ ':TestFiles' ]
 	},
 	'Dist::Zilla::Role::FileFinderUser' => {
 		-version => '4.200006',	# for :IncModules
-		finder_arg_names => [ 'perl_Inc' ],
-		method => 'found_inc',
+		finder_arg_names => [ 'configure_finder' ],
+		method => 'found_configure',
 		default_finders => [ ':IncModules' ]
 	},
 );
@@ -73,9 +73,9 @@ sub register_prereqs {
 		}
 	} else {
 		# Go through our 3 phases
-		$self->_scan_file( 'runtime', $_ ) for @{ $self->found_modules };
+		$self->_scan_file( 'runtime', $_ ) for @{ $self->found_runtime };
 		$self->_finalize( 'runtime' );
-		$self->_scan_file( 'configure', $_ ) for @{ $self->found_inc };
+		$self->_scan_file( 'configure', $_ ) for @{ $self->found_configure };
 		$self->_finalize( 'configure' );
 		$self->_scan_file( 'test', $_ ) for @{ $self->found_tests };
 		$self->_finalize( 'test' );
