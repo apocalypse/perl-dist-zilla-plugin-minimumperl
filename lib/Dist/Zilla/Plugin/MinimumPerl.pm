@@ -87,8 +87,6 @@ sub _scan_file {
 
 	# We don't parse files marked with the 'bytes' encoding as they're special - see RT#96071
 	return if $file->is_bytes;
-	# Only check .t and .pm/pl files, thanks RT#67355 and DOHERTY
-	return unless $file->name =~ /\.(?:t|p[ml])$/i;
 
 	# TODO skip "bad" files and not die, just warn?
 	my $pmv = Perl::MinimumVersion->new( \$file->content );
