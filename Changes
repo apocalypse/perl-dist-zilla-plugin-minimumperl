@@ -1,10 +1,15 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.006 2014-10-31T21:43:35Z UTC
  - extend the scanning of runtime prerequisites to include executables
  - file finder options are now documented
  - reverted the reversion of the filename check: a custom filefinder can do
    this for you if necessary
+
+ [STATISTICS]
+ - code churn: 2 files changed, 42 insertions(+), 14 deletions(-)
 
 1.005 2014-10-31T17:29:36Z UTC
  - Reverted the removal of the filename check while scanning files -
