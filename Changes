@@ -1,6 +1,10 @@
 Revision history for Dist::Zilla::Plugin::MinimumPerl
 
 {{$NEXT}}
+ - extend the scanning of runtime prerequisites to include executables
+ - file finder options are now documented
+ - reverted the reversion of the filename check: a custom filefinder can do
+   this for you if necessary
 
 1.005 2014-10-31T17:29:36Z UTC
  - Reverted the removal of the filename check while scanning files -
