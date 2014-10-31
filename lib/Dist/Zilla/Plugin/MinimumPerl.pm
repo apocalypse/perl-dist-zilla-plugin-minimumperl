@@ -11,7 +11,7 @@ with(
 	'Dist::Zilla::Role::FileFinderUser' => {
 		finder_arg_names => [ 'perl_Modules' ],
 		method => 'found_modules',
-		default_finders => [ ':InstallModules' ]
+		default_finders => [ ':InstallModules', ':ExecFiles' ]
 	},
 	'Dist::Zilla::Role::FileFinderUser' => {
 		finder_arg_names => [ 'perl_Tests' ],
