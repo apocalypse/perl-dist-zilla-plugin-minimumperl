@@ -148,8 +148,34 @@ for your dist and adds it to the prereqs.
 	# In your dist.ini:
 	[MinimumPerl]
 
-This plugin will search for files matching C</\.(t|pl|pm)$/i> in the C<lib/>, C<inc/>, and C<t/> directories.
-If you need it to scan a different directory and/or a different extension please let me know.
+=head1 CONFIGURATION OPTIONS
+
+The plugin uses L<FileFinders|Dist::Zilla::Role::FileFinder> for finding files
+to scan.  The predefined finders are listed in
+L<Dist::Zilla::Role::FileFinderUser/default_finders>.
+You can define your own with the
+L<[FileFinder::ByName]|Dist::Zilla::Plugin::FileFinder::ByName> and
+L<[FileFinder::Filter]|Dist::Zilla::Plugin::FileFinder::Filter> plugins.
+
+Additionally, all files whose encoding has been specified as C<bytes> are
+omitted from consideration.  (See L<[Encoding]|Dist::Zilla::Plugin::Encoding>
+for more information.)
+
+Each prerequisite phase is configured separately:
+
+=head2 C<runtime_finder>
+
+Finds files to scan for runtime prerequisites.  The default value is
+C<:InstallModules> and C<:ExecFiles> (see also
+L<Dist::Zilla::Plugin::ExecDir>.
+
+=head2 C<test_finder>
+
+Finds files to scan for test prerequisites. The default value is C<:TestFiles>.
+
+=head2 C<configure_finder>
+
+Finds files to scan for configure prerequisites. The default value is C<:IncModules>.
 
 =head1 SEE ALSO
 Dist::Zilla

@@ -2,6 +2,7 @@ Revision history for Dist::Zilla::Plugin::MinimumPerl
 
 {{$NEXT}}
  - extend the scanning of runtime prerequisites to include executables
+ - file finder options are now documented
 
 1.005 2014-10-31T17:29:36Z UTC
  - Reverted the removal of the filename check while scanning files -
