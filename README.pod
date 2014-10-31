@@ -2,9 +2,8 @@
 
 =encoding UTF-8
 
-=for :stopwords Apocalypse Melo Mengué Olivier Pedro cpan testmatrix url annocpan anno
-bugtracker rt cpants kwalitee diff irc mailto metadata placeholders
-metacpan dist prereqs
+=for :stopwords Apocalypse cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee
+diff irc mailto metadata placeholders metacpan dist prereqs
 
 =for Pod::Coverage register_prereqs
 
@@ -14,7 +13,7 @@ Dist::Zilla::Plugin::MinimumPerl - Detects the minimum version of Perl required 
 
 =head1 VERSION
 
-  This document describes v1.004 of Dist::Zilla::Plugin::MinimumPerl - released October 27, 2014 as part of Dist-Zilla-Plugin-MinimumPerl.
+  This document describes v1.005 of Dist::Zilla::Plugin::MinimumPerl - released October 31, 2014 as part of Dist-Zilla-Plugin-MinimumPerl.
 
 =head1 DESCRIPTION
 
@@ -206,9 +205,13 @@ Apocalypse <APOCAL@cpan.org>
 
 =head2 CONTRIBUTORS
 
-=for stopwords Olivier Mengué Pedro Melo
+=for stopwords Nigel Gregoire Olivier Mengué Pedro Melo
 
 =over 4
+
+=item *
+
+Nigel Gregoire <nigelg@airg.com>
 
 =item *
 
