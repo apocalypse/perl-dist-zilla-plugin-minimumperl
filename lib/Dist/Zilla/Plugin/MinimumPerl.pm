@@ -9,7 +9,6 @@ use MooseX::Types::Perl 0.101340 qw( LaxVersionStr );
 with(
 	'Dist::Zilla::Role::PrereqSource' => { -version => '5.006' }, # for the updated encoding system in dzil, RJBS++
 	'Dist::Zilla::Role::FileFinderUser' => {
-		-version => '4.200006',	# for :IncModules
 		finder_arg_names => [ 'perl_Modules' ],
 		method => 'found_modules',
 		default_finders => [ ':InstallModules' ]
@@ -20,6 +19,7 @@ with(
 		default_finders => [ ':TestFiles' ]
 	},
 	'Dist::Zilla::Role::FileFinderUser' => {
+		-version => '4.200006',	# for :IncModules
 		finder_arg_names => [ 'perl_Inc' ],
 		method => 'found_inc',
 		default_finders => [ ':IncModules' ]
