@@ -98,6 +98,8 @@ sub _scan_file {
 		$self->log_fatal( "Unable to extract MinimumPerl from '" . $file->name . "'" );
 	}
 
+	$self->log_debug([ 'extracted minimum perl version for %s: %s', $file->name, $ver ]);
+
 	# cache it, letting _finalize take care of it
 	if ( ! exists $self->_scanned_perl->{$phase} || $self->_scanned_perl->{$phase}->[0] < $ver ) {
 		$self->_scanned_perl->{$phase} = [ $ver, $file ];
