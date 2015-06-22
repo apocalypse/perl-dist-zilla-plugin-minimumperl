@@ -8,6 +8,7 @@ use MooseX::Types::Perl 0.101340 qw( LaxVersionStr );
 
 with(
 	'Dist::Zilla::Role::PrereqSource' => { -version => '5.006' }, # for the updated encoding system in dzil, RJBS++
+	'Dist::Zilla::Role::PPI',
 	'Dist::Zilla::Role::FileFinderUser' => {
 		finder_arg_names => [ 'runtime_finder' ],
 		method => 'found_runtime',
@@ -89,7 +90,7 @@ sub _scan_file {
 	return if $file->is_bytes;
 
 	# TODO skip "bad" files and not die, just warn?
-	my $pmv = Perl::MinimumVersion->new( \$file->content );
+	my $pmv = Perl::MinimumVersion->new( $self->ppi_document_for_file($file) );
 	if ( ! defined $pmv ) {
 		$self->log_fatal( "Unable to parse '" . $file->name . "'" );
 	}
